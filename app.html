@@ -1,0 +1,936 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Scam Spotters</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bitter:wght@700;800&family=Noto+Sans+SC:wght@400;700&display=swap">
+<style>
+/* Layout: one calm column, a shield that fills as you score, big tap targets, no timers. */
+:root{
+  --scale:1;
+  --paper:#EEF3F7; --card:#FFFFFF; --ink:#0E2233; --muted:#46586A; --line:#C3D0DB;
+  --brand:#0A5A86; --on-brand:#FFFFFF; --bubble:#E8F1F8;
+  --good:#17703A; --good-tint:#E3F4E9; --bad:#A8281F; --bad-tint:#FBE7E4; --gold:#9A6200;
+  --display:'Bitter','Noto Sans SC',Georgia,serif;
+  --body:'Atkinson Hyperlegible','Noto Sans SC','PingFang SC','Microsoft YaHei','Segoe UI',system-ui,sans-serif;
+  font-size:calc(20px * var(--scale));
+}
+:root[lang="zh-Hans"]{
+  --display:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  --body:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B151E; --card:#13222E; --ink:#E8F0F6; --muted:#A3B6C5; --line:#2A3E4E;
+    --brand:#6CC1F0; --on-brand:#05202F; --bubble:#1A2E3D;
+    --good:#6FD695; --good-tint:#12301F; --bad:#FF9B91; --bad-tint:#3A1916; --gold:#F0B84A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B151E; --card:#13222E; --ink:#E8F0F6; --muted:#A3B6C5; --line:#2A3E4E;
+  --brand:#6CC1F0; --on-brand:#05202F; --bubble:#1A2E3D;
+  --good:#6FD695; --good-tint:#12301F; --bad:#FF9B91; --bad-tint:#3A1916; --gold:#F0B84A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:1rem; line-height:1.5;
+  padding-block:12px 40px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap{max-width:46rem; margin:0 auto; display:flex; flex-direction:column; gap:1rem}
+h1,h2,h3{font-family:var(--display); line-height:1.2; margin:0; text-wrap:balance}
+h1{font-size:clamp(2rem,8vw,2.9rem); font-weight:800}
+h2{font-size:1.5rem; font-weight:800}
+h3{font-size:1.2rem; font-weight:700}
+h4{margin:0; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+p{margin:0}
+ul{margin:0; padding-left:1.2rem; display:flex; flex-direction:column; gap:.25rem}
+:focus-visible{outline:3px solid var(--brand); outline-offset:3px}
+[tabindex="-1"]:focus{outline:none}
+
+/* top bar */
+.top{display:flex; flex-wrap:wrap; align-items:center; gap:.6rem 1rem; justify-content:space-between}
+.brand{display:flex; align-items:center; gap:.6rem; font-family:var(--display); font-weight:800; font-size:1.1rem}
+.brand svg{width:2rem; height:2.4rem; flex:none}
+.stats{display:flex; align-items:center; gap:.5rem; flex-wrap:wrap}
+.chip{border:1.5px solid var(--line); background:var(--card); border-radius:999px; padding:.15rem .8rem; font-weight:700; font-size:.9rem; font-variant-numeric:tabular-nums; white-space:nowrap}
+.chip.streak{border-color:var(--gold); color:var(--gold)}
+.size{display:flex; gap:.3rem}
+.size button{min-width:2.6rem; min-height:2.6rem; padding:0 .5rem; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); font:700 .95rem var(--body); cursor:pointer}
+.size button:hover{border-color:var(--brand)}
+.size button[aria-pressed="true"]{background:var(--brand); border-color:var(--brand); color:var(--on-brand)}
+
+/* shield */
+.s-bg{fill:var(--line)} .s-fill{fill:var(--brand); transition:transform .7s ease}
+.s-ln{fill:none; stroke:var(--brand); stroke-width:2.5; stroke-linejoin:round}
+
+.card{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:1.1rem; display:flex; flex-direction:column; gap:.9rem}
+.lead{font-size:1.15rem}
+.muted{color:var(--muted)}
+
+/* start */
+.hero{display:grid; grid-template-columns:1fr auto; gap:1rem 1.5rem; align-items:center}
+.hero .art{width:7rem}
+@media (max-width:30rem){.hero{grid-template-columns:1fr}.hero .art{width:5rem;order:-1}}
+.points{list-style:none; padding:0; gap:.7rem}
+.points li{display:flex; gap:.7rem; align-items:baseline}
+.points b{font-family:var(--display)}
+.points .dot{flex:none; width:.7rem; height:.7rem; border-radius:50%; background:var(--brand); transform:translateY(.05rem)}
+
+/* buttons */
+.btn{min-height:3.4rem; padding:.65rem 1.5rem; border-radius:14px; border:2px solid var(--brand); background:var(--brand); color:var(--on-brand); font:700 1.1rem var(--body); cursor:pointer; align-self:flex-start}
+.btn:hover{filter:brightness(1.08)}
+.btn.alt{background:transparent; color:var(--brand)}
+.btn.alt[aria-pressed="true"]{background:var(--brand); color:var(--on-brand)}
+.btn[disabled]{opacity:.5; cursor:default}
+.row{display:flex; flex-wrap:wrap; gap:.7rem}
+.judge{display:grid; grid-template-columns:repeat(auto-fit,minmax(12rem,1fr)); gap:.8rem}
+.judge .btn{align-self:stretch; min-height:4rem; font-size:1.2rem; background:var(--card); color:var(--ink); border-color:var(--ink)}
+.judge .btn:hover{background:var(--bubble)}
+
+/* progress */
+.meta{display:flex; justify-content:space-between; flex-wrap:wrap; gap:.3rem; font-weight:700}
+.prog{display:flex; gap:6px}
+.prog span{flex:1; height:.55rem; border-radius:6px; background:var(--line)}
+.prog .done{background:var(--brand)} .prog .now{background:var(--gold)}
+
+/* message bubble */
+.bubble{background:var(--bubble); border:1.5px solid var(--line); border-radius:6px 20px 20px 20px; padding:.9rem 1rem; display:flex; flex-direction:column; gap:.5rem}
+.bubble .who{display:flex; flex-wrap:wrap; gap:.4rem .7rem; align-items:center; font-size:.9rem; color:var(--muted); font-weight:700}
+.pill{border:1.5px solid var(--muted); border-radius:999px; padding:0 .6rem; font-size:.75rem; letter-spacing:.04em; text-transform:uppercase}
+.bubble .msg{font-size:1.1rem}
+
+/* feedback */
+.fb{border-radius:16px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.7rem; border:2px solid}
+.fb.ok{background:var(--good-tint); border-color:var(--good)}
+.fb.no{background:var(--bad-tint); border-color:var(--bad)}
+.fb h3{display:flex; flex-wrap:wrap; gap:.3rem .8rem; align-items:baseline}
+.fb.ok h3{color:var(--good)} .fb.no h3{color:var(--bad)}
+.fb .pts{font-family:var(--body); font-size:.95rem; color:var(--ink)}
+
+/* choices (round 3) */
+.opts{display:flex; flex-direction:column; gap:.7rem}
+.opt{display:flex; gap:.8rem; align-items:flex-start; text-align:left; width:100%; min-height:3.6rem; padding:.7rem .9rem; border-radius:14px; border:2px solid var(--line); background:var(--card); color:var(--ink); font:400 1.05rem/1.4 var(--body); cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--brand)}
+.opt .ltr{flex:none; width:2.1rem; height:2.1rem; border-radius:50%; border:2px solid currentColor; display:grid; place-items:center; font-weight:700}
+.opt .txt{display:flex; flex-direction:column; gap:.25rem; min-width:0}
+.opt[disabled]{cursor:default}
+.opt.best{border-color:var(--good); background:var(--good-tint)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-tint)}
+.tag{font-size:.8rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase}
+.best .tag{color:var(--good)} .wrong .tag{color:var(--bad)}
+
+/* red flag lines (round 2) */
+.lines{display:flex; flex-direction:column; gap:.6rem}
+.line{display:flex; gap:.8rem; align-items:flex-start; text-align:left; width:100%; min-height:3.4rem; padding:.7rem .9rem; border-radius:14px; border:2px solid var(--line); background:var(--card); color:var(--ink); font:400 1.05rem/1.4 var(--body); cursor:pointer}
+.line .box{flex:none; width:1.6rem; height:1.6rem; border:2px solid var(--muted); border-radius:6px; display:grid; place-items:center; font-weight:700; font-size:1rem; margin-top:.1rem}
+.line[aria-checked="true"]{border-color:var(--brand); background:var(--bubble)}
+.line[aria-checked="true"] .box{background:var(--brand); border-color:var(--brand); color:var(--on-brand)}
+.line .txt{display:flex; flex-direction:column; gap:.25rem; min-width:0}
+.line.rflag{border-color:var(--bad); background:var(--bad-tint)}
+.line.rsafe{border-color:var(--good); background:var(--good-tint)}
+.line.rflag .tag{color:var(--bad)} .line.rsafe .tag{color:var(--good)}
+.line[disabled]{cursor:default}
+
+/* mini games */
+.status{display:flex; flex-wrap:wrap; gap:.5rem}
+.gmsg{min-height:1.6rem; font-weight:700}
+.mcols{display:grid; grid-template-columns:1fr 1fr; gap:.7rem}
+.mcol{display:flex; flex-direction:column; gap:.7rem; min-width:0}
+.mt{width:100%; min-height:4.2rem; padding:.6rem .7rem; border-radius:14px; border:2px solid var(--line); background:var(--card); color:var(--ink); font:700 1rem/1.35 var(--body); cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:.15rem; overflow-wrap:anywhere}
+.mt:hover:not([disabled]){border-color:var(--brand)}
+.mt.sel{border-color:var(--brand); background:var(--bubble); outline:3px solid var(--brand); outline-offset:-5px}
+.mt.done{border-color:var(--good); background:var(--good-tint); cursor:default}
+.mt .ok{font-size:.8rem; color:var(--good)}
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(8.2rem,1fr)); gap:.7rem}
+.fc{min-height:6.2rem; padding:.6rem; border-radius:14px; border:2px solid var(--brand); background:var(--brand); color:var(--on-brand); font:700 1rem/1.3 var(--body); cursor:pointer; display:grid; place-items:center; text-align:center; overflow-wrap:anywhere}
+.fc .q{font-family:var(--display); font-size:2rem}
+.fc.up{background:var(--bubble); color:var(--ink); border-color:var(--brand)}
+.fc.up.b{background:var(--card); border-style:dashed}
+.fc.done{background:var(--good-tint); color:var(--ink); border-color:var(--good); cursor:default}
+.fc .ok{font-size:.8rem; color:var(--good); display:block}
+
+/* round end + results */
+.stars{display:flex; gap:.3rem}
+.stars svg{width:2.4rem; height:2.4rem}
+.star-on{fill:var(--gold)} .star-off{fill:var(--line)}
+.big{font-family:var(--display); font-weight:800; font-size:2.2rem; font-variant-numeric:tabular-nums}
+.rank{display:grid; grid-template-columns:auto 1fr; gap:1rem 1.4rem; align-items:center}
+.rank svg{width:6rem}
+@media (max-width:30rem){.rank{grid-template-columns:1fr}.rank svg{width:5rem}}
+.badges{display:grid; grid-template-columns:repeat(auto-fit,minmax(10.5rem,1fr)); gap:.7rem}
+.badge{border:2px solid var(--line); border-radius:14px; padding:.8rem; display:flex; flex-direction:column; gap:.2rem; background:var(--card)}
+.badge.on{border-color:var(--gold)}
+.badge.off{opacity:.75}
+.badge b{font-family:var(--display)}
+.badge .st{font-size:.85rem; font-weight:700}
+.badge.on .st{color:var(--gold)}
+.rules{display:grid; grid-template-columns:repeat(auto-fit,minmax(12rem,1fr)); gap:.7rem}
+.rule{border:1.5px solid var(--line); border-radius:14px; padding:.9rem; display:flex; flex-direction:column; gap:.3rem; background:var(--card)}
+.rule b{font-family:var(--display); font-size:1.5rem; letter-spacing:.04em; color:var(--brand)}
+.help{background:var(--bubble); border:1.5px solid var(--brand); border-radius:16px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.6rem}
+.num{font-family:var(--display); font-weight:800; font-size:2rem; font-variant-numeric:tabular-nums; letter-spacing:.02em}
+a{color:var(--brand); font-weight:700}
+
+@media (prefers-reduced-motion: reduce){ .s-fill{transition:none} html{scroll-behavior:auto} }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 40 48" aria-hidden="true">
+        <defs><clipPath id="cpTop"><path d="M20 2 L36 8 V22 C36 33 29 42 20 46 C11 42 4 33 4 22 V8 Z"/></clipPath></defs>
+        <path class="s-bg" d="M20 2 L36 8 V22 C36 33 29 42 20 46 C11 42 4 33 4 22 V8 Z"/>
+        <rect id="meterRect" class="s-fill" x="0" y="0" width="40" height="48" clip-path="url(#cpTop)" style="transform:translateY(48px)"/>
+        <path class="s-ln" d="M20 2 L36 8 V22 C36 33 29 42 20 46 C11 42 4 33 4 22 V8 Z"/>
+      </svg>
+      <span id="brandName">Scam Spotters</span>
+    </div>
+    <div class="stats">
+      <span class="chip" id="scoreChip" aria-live="polite">Points: 0</span>
+      <span class="chip streak" id="streakChip" hidden></span>
+      <div class="size" role="group" id="langGrp" aria-label="Language">
+        <button type="button" data-act="lang" data-v="0" lang="en">EN</button>
+        <button type="button" data-act="lang" data-v="1" lang="zh-Hans">中文</button>
+        <button type="button" data-act="lang" data-v="2" lang="ms">BM</button>
+      </div>
+      <div class="size" role="group" id="sizeGrp">
+        <button type="button" id="btnSmaller" data-act="smaller">A&minus;</button>
+        <button type="button" id="btnLarger" data-act="larger">A+</button>
+      </div>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var MAXPTS = 150;
+var SHIELD = "M20 2 L36 8 V22 C36 33 29 42 20 46 C11 42 4 33 4 22 V8 Z";
+var LANGS = ["en","zh-Hans","ms"];
+var li = 0;
+function t3(en, zh, ms){ return [en, zh, ms]; }
+function L(a){ return a[li]; }
+
+/* ---------- interface text: [English, 中文, Bahasa Melayu] ---------- */
+var T = {
+ brand: t3("Scam Spotters","防骗小卫士","Pengesan Penipuan"),
+ pts: t3(function(n){return "Points: "+n;}, function(n){return "积分："+n;}, function(n){return "Mata: "+n;}),
+ streak: t3(function(n){return "★ "+n+" in a row";}, function(n){return "★ 连续答对 "+n+" 题";}, function(n){return "★ "+n+" berturut-turut";}),
+ smaller: t3("Make text smaller","缩小文字","Kecilkan teks"),
+ larger: t3("Make text larger","放大文字","Besarkan teks"),
+ langAria: t3("Language","语言","Bahasa"),
+ chooseLang: t3("Choose your language","请选择语言","Pilih bahasa anda"),
+ lead: t3("A friendly quiz that helps you tell real jobs from fake ones. Take your time. There is no timer and you cannot lose.",
+          "这是一个轻松的小测验，帮您分辨真假工作。慢慢来，没有计时，也不会输。",
+          "Kuiz mesra yang membantu anda membezakan kerja sebenar daripada kerja palsu. Ambil masa anda. Tiada pemasa dan anda tidak boleh kalah."),
+ s1b: t3("3 short rounds.","3 个短回合。","3 pusingan pendek."),
+ s1t: t3("11 questions in all, with a short lesson after each answer, plus 2 mini games.","共 11 道题，每题之后都有简短的小课堂，中间还有 2 个小游戏。","11 soalan semuanya, dengan pengajaran ringkas selepas setiap jawapan, serta 2 permainan mini."),
+ s2b: t3("Fill your shield.","填满您的盾牌。","Penuhkan perisai anda."),
+ s2t: t3("Every right answer earns points and fills the shield at the top.","每答对一题就得分，页面上方的盾牌会慢慢填满。","Setiap jawapan betul memberi mata dan mengisi perisai di atas."),
+ s3b: t3("Win badges.","赢取徽章。","Menangi lencana."),
+ s3t: t3("At the end you get a title and a list of simple rules to share with family.","最后您会得到一个称号，还有几条简单的守则可以和家人分享。","Di akhir anda mendapat gelaran dan senarai peraturan mudah untuk dikongsi dengan keluarga."),
+ s4b: t3("Text too small?","字太小？","Teks terlalu kecil?"),
+ s4t: t3("Use the A+ button at the top.","请按上方的 A+ 按钮。","Gunakan butang A+ di atas."),
+ startBtn: t3("Start the quiz","开始测验","Mulakan kuiz"),
+ roundOf: t3(function(n){return "Round "+n+" of 3";}, function(n){return "第 "+n+" 回合（共 3 回合）";}, function(n){return "Pusingan "+n+" daripada 3";}),
+ startRound: t3(function(n){return "Start Round "+n;}, function(n){return "开始第 "+n+" 回合";}, function(n){return "Mulakan Pusingan "+n;}),
+ roundName: t3(function(r,name){return "Round "+r+" of 3: "+name;}, function(r,name){return "第 "+r+" 回合（共 3）："+name;}, function(r,name){return "Pusingan "+r+" daripada 3: "+name;}),
+ qOf: t3(function(i,n){return "Question "+i+" of "+n;}, function(i,n){return "第 "+i+" 题（共 "+n+" 题）";}, function(i,n){return "Soalan "+i+" daripada "+n;}),
+ from: t3(function(x){return "From: "+x;}, function(x){return "发件人："+x;}, function(x){return "Daripada: "+x;}),
+ judgeQ: t3("Is this job real or a scam?","这份工作是真的还是骗局？","Adakah kerja ini sebenar atau penipuan?"),
+ btnReal: t3("It is a REAL job","这是真工作","Ini kerja SEBENAR"),
+ btnScam: t3("It is a SCAM","这是骗局","Ini PENIPUAN"),
+ correct: t3("Correct!","答对了！","Betul!"),
+ nq1: t3("Not quite. Good try, this one is tricky.","差一点。这题比较难，您已经很努力了。","Hampir. Cubaan yang baik, soalan ini sukar."),
+ nq2: t3("Not quite. Good try.","差一点，继续加油。","Hampir. Cubaan yang baik."),
+ plus: t3(function(n){return "+"+n+" points";}, function(n){return "+"+n+" 分";}, function(n){return "+"+n+" mata";}),
+ isScam: t3("This message is a SCAM.","这条信息是骗局。","Mesej ini PENIPUAN."),
+ isReal: t3("This message is a REAL job.","这条信息是真实的工作。","Mesej ini kerja SEBENAR."),
+ saidScam: t3("You said scam.","您选了“骗局”。","Anda pilih penipuan."),
+ saidReal: t3("You said real.","您选了“真工作”。","Anda pilih sebenar."),
+ redFlags: t3("Red flags","危险信号","Tanda bahaya"),
+ goodSigns: t3("Good signs","可信的迹象","Tanda baik"),
+ nextQ: t3("Next question","下一题","Soalan seterusnya"),
+ finishRound: t3("Finish this round","完成本回合","Tamatkan pusingan ini"),
+ flagsH: t3("Tap the lines that worry you","请点选让您担心的行","Ketik baris yang membimbangkan anda"),
+ linesAria: t3("Message lines","信息的每一行","Baris mesej"),
+ checkBtn: t3("Check my answers","检查我的答案","Semak jawapan saya"),
+ flagsHint: t3("Tap a line again to undo. Then press Check.","再点一次可取消。然后按“检查我的答案”。","Ketik baris sekali lagi untuk batal. Kemudian tekan Semak."),
+ tFlagSpot: t3("Red flag. You spotted it.","危险信号。您找到了。","Tanda bahaya. Anda menjumpainya."),
+ tFlagMiss: t3("Red flag. You missed this one.","危险信号。这一行您漏掉了。","Tanda bahaya. Anda terlepas yang ini."),
+ tSafeWrong: t3("This line is fine. You marked it by mistake.","这一行没问题。您点错了。","Baris ini tidak mengapa. Anda tersilap menandakannya."),
+ tSafeOk: t3("This line is fine.","这一行没问题。","Baris ini tidak mengapa."),
+ wellSpotted: t3("Well spotted!","眼光真准！","Bagus sekali!"),
+ goodStart: t3("A good start.","开了个好头。","Permulaan yang baik."),
+ found: t3(function(f,n){return "You found "+f+" of "+n+" red flags.";}, function(f,n){return "您找到了 "+n+" 个危险信号中的 "+f+" 个。";}, function(f,n){return "Anda menjumpai "+f+" daripada "+n+" tanda bahaya.";}),
+ wrongMarked: t3(function(n){return " You also marked "+n+(n===1?" line that was fine.":" lines that were fine.");}, function(n){return " 另外有 "+n+" 行您标记了，但其实没问题。";}, function(n){return " Anda juga menandakan "+n+" baris yang sebenarnya tidak mengapa.";}),
+ flagPrefix: t3("Red flag to remember: ","请记住这个危险信号：","Tanda bahaya untuk diingat: "),
+ chooseH: t3("What would you do?","您会怎么做？","Apa yang akan anda buat?"),
+ bestAns: t3("Best answer","最佳答案","Jawapan terbaik"),
+ yourChoiceParen: t3("(your choice)","（您的选择）","(pilihan anda)"),
+ yourChoice: t3("Your choice","您的选择","Pilihan anda"),
+ whyRisky: t3("Why that is risky:","为什么这样有风险：","Mengapa ia berisiko:"),
+ whyBest: t3("Why the best answer works:","为什么这个答案最好：","Mengapa jawapan terbaik berkesan:"),
+ roundDone: t3(function(n){return "Round "+n+" complete";}, function(n){return "第 "+n+" 回合完成";}, function(n){return "Pusingan "+n+" selesai";}),
+ ofPts: t3(function(m){return "of "+m+" points";}, function(m){return "满分 "+m+" 分";}, function(m){return "daripada "+m+" mata";}),
+ remember: t3("Remember","请记住","Ingat"),
+ playGame: t3("Play a mini game","玩个小游戏","Main permainan mini"),
+ seeResults: t3("See my results","查看我的成绩","Lihat keputusan saya"),
+ starsAria: t3(function(n){return n+" out of 3 stars";}, function(n){return "3 颗星中的 "+n+" 颗";}, function(n){return n+" daripada 3 bintang";}),
+ /* mini games */
+ gameTag: t3(function(n){return "Mini game "+n+" of 2";}, function(n){return "小游戏 "+n+"（共 2 个）";}, function(n){return "Permainan mini "+n+" daripada 2";}),
+ lvl1: t3("Level 1: Easy","第 1 级：简单","Tahap 1: Mudah"),
+ lvl2: t3("Level 2: A little harder","第 2 级：稍微难一点","Tahap 2: Sedikit lebih sukar"),
+ g1t: t3("Match It","配对游戏","Padankan"),
+ g1i: t3("Tap a word on the left, then tap the advice on the right that goes with it. Take your time.","先点左边的词语，再点右边相配的建议。慢慢来。","Ketik perkataan di kiri, kemudian ketik nasihat di kanan yang sepadan. Ambil masa anda."),
+ g2t: t3("Flip and Match","翻牌配对","Selak dan Padankan"),
+ g2i: t3("Tap two cards to turn them over. Find each sign and its advice. Cards turn back if they do not match, so try to remember where they are.","点两张牌把它翻开，找出每个迹象和它相配的建议。不相配的牌会翻回去，请记住它们的位置。","Ketik dua kad untuk membukanya. Cari setiap tanda dan nasihatnya. Kad akan ditutup semula jika tidak sepadan, jadi cuba ingat kedudukannya."),
+ tries: t3(function(n){return "Tries: "+n;}, function(n){return "尝试次数："+n;}, function(n){return "Percubaan: "+n;}),
+ matchedOf: t3(function(a,b){return "Matched: "+a+" of "+b;}, function(a,b){return "已配对："+a+"/"+b;}, function(a,b){return "Dipadankan: "+a+" daripada "+b;}),
+ pickLeft: t3("First tap a word on the left.","请先点左边的词语。","Mula-mula ketik perkataan di kiri."),
+ tryAgain: t3("Not a match. Try again.","不相配，再试一次。","Tidak sepadan. Cuba lagi."),
+ goodMatch: t3("Good match!","配对成功！","Padanan bagus!"),
+ colA: t3("Word","词语","Perkataan"),
+ colB: t3("Advice","建议","Nasihat"),
+ cardDown: t3(function(n){return "Card "+n+", face down";}, function(n){return "第 "+n+" 张牌，背面朝上";}, function(n){return "Kad "+n+", menghadap bawah";}),
+ gameDone: t3("All matched! Bonus +10 points","全部配对成功！额外奖励 +10 分","Semua dipadankan! Bonus +10 mata"),
+ doneTries: t3(function(n){return "You finished in "+n+" tries.";}, function(n){return "您用了 "+n+" 次完成。";}, function(n){return "Anda selesai dalam "+n+" percubaan.";}),
+ skipGame: t3("Skip the mini game","跳过小游戏","Langkau permainan mini"),
+ goRound: t3(function(n){return "Go to Round "+n;}, function(n){return "前往第 "+n+" 回合";}, function(n){return "Pergi ke Pusingan "+n;}),
+ /* results */
+ yourTitle: t3("Your title","您的称号","Gelaran anda"),
+ tChamp: t3("Scam Buster Champion","防骗冠军","Juara Pembanteras Penipuan"),
+ tGuard: t3("Shield Guardian","盾牌守护者","Pengawal Perisai"),
+ tAppr: t3("Alert Apprentice","警觉的学徒","Perantis Berwaspada"),
+ tFresh: t3("Fresh Recruit","新手上路","Rekrut Baharu"),
+ nChamp: t3("Outstanding. You spotted nearly everything.","太棒了！几乎每个骗局都被您识破。","Cemerlang. Anda mengesan hampir semuanya."),
+ nGuard: t3("Very sharp. Scammers would have a hard time with you.","非常敏锐，骗子很难骗到您。","Sangat tajam. Penipu akan sukar memperdayakan anda."),
+ nAppr: t3("Good work. You are already safer than before.","做得好！您已经比以前更安全了。","Bagus. Anda sudah lebih selamat berbanding sebelum ini."),
+ nFresh: t3("A great start. Learning these signs is the hardest part, and you have begun.","好的开始。学会辨认这些迹象最不容易，而您已经起步了。","Permulaan yang baik. Mempelajari tanda-tanda ini bahagian paling sukar, dan anda telah bermula."),
+ yourBadges: t3("Your badges","您的徽章","Lencana anda"),
+ b1: t3("Sharp Eye","火眼金睛","Mata Tajam"), b1d: t3("Score 40 or more in Round 1","第 1 回合得 40 分或以上","Dapat 40 mata atau lebih dalam Pusingan 1"),
+ b2: t3("Flag Finder","危险信号侦探","Pencari Tanda Bahaya"), b2d: t3("Score 30 or more in Round 2","第 2 回合得 30 分或以上","Dapat 30 mata atau lebih dalam Pusingan 2"),
+ b3: t3("Cool Head","冷静头脑","Kepala Dingin"), b3d: t3("Score 30 or more in Round 3","第 3 回合得 30 分或以上","Dapat 30 mata atau lebih dalam Pusingan 3"),
+ b4: t3("Game Master","游戏高手","Johan Permainan"), b4d: t3("Finish both mini games","完成两个小游戏","Selesaikan kedua-dua permainan mini"),
+ b5: t3("Perfect Shield","完美盾牌","Perisai Sempurna"), b5d: t3("Score every point","拿到所有分数","Dapatkan semua mata"),
+ earned: t3("Earned","已获得","Diperoleh"),
+ notYet: t3("Not earned yet","尚未获得","Belum diperoleh"),
+ longest: t3(function(n){return "Your longest run: "+n+" right answers in a row.";}, function(n){return "您最长的连续答对纪录：连续 "+n+" 题。";}, function(n){return "Rentetan terpanjang anda: "+n+" jawapan betul berturut-turut.";}),
+ rulesH: t3("Three rules to remember","请记住三条守则","Tiga peraturan untuk diingat"),
+ rStop: t3("STOP","停","BERHENTI"), rStopT: t3("Do not rush. Scammers want you to hurry, so slow down.","不要着急。骗子就是要您赶快，所以请慢下来。","Jangan tergesa-gesa. Penipu mahu anda cepat, jadi perlahankan diri."),
+ rCheck: t3("CHECK","查","SEMAK"), rCheckT: t3("Look up the company yourself. Never trust the number or link in the message.","自己去查这家公司。不要相信信息里的电话或链接。","Cari syarikat itu sendiri. Jangan percaya nombor atau pautan dalam mesej."),
+ rTell: t3("TELL","说","BERITAHU"), rTellT: t3("Talk to family, a friend or the helpline before you pay or share anything.","付钱或提供任何资料之前，先和家人、朋友或热线谈一谈。","Berbincang dengan keluarga, rakan atau talian bantuan sebelum membayar atau berkongsi apa-apa."),
+ revisit: t3("Worth another look","值得再看一遍","Wajar diteliti semula"),
+ helpH: t3("Not sure about a job offer?","不确定某份工作是不是真的？","Tidak pasti tentang tawaran kerja?"),
+ helpP1: t3("Call the ScamShield helpline, open 24 hours a day:","请拨打 ScamShield 防诈骗热线，全天 24 小时服务：","Hubungi talian bantuan ScamShield, dibuka 24 jam sehari:"),
+ helpP2: t3("If you already sent money or shared bank details, call your bank straight away, then make a police report. Scammers fool clever people every day. There is nothing to be ashamed of.",
+            "如果您已经汇款或提供了银行资料，请立刻联络银行，然后向警方报案。骗子每天都在欺骗聪明人，您不必觉得丢脸。",
+            "Jika anda sudah menghantar wang atau berkongsi butiran bank, hubungi bank anda dengan segera, kemudian buat laporan polis. Penipu memperdayakan orang bijak setiap hari. Tiada apa yang perlu dimalukan."),
+ helpLink: t3("ScamShield website","ScamShield 网站","Laman web ScamShield"),
+ missionH: t3("Your mission for today","您今天的任务","Misi anda hari ini"),
+ missionA: t3("Tell one friend or family member this:","请告诉一位朋友或家人：","Beritahu seorang kawan atau ahli keluarga ini:"),
+ missionB: t3("a real job never asks you to pay first.","真正的工作不会要您先付钱。","kerja sebenar tidak pernah meminta anda membayar dahulu."),
+ again: t3("Play again","再玩一次","Main semula")
+};
+function t(k){
+  var v = T[k][li];
+  if(typeof v === "function"){ return v.apply(null, Array.prototype.slice.call(arguments, 1)); }
+  return v;
+}
+
+/* ---------- quiz content ---------- */
+var CH = {
+  wa: t3("WhatsApp","WhatsApp","WhatsApp"), sms: t3("SMS","短信","SMS"),
+  email: t3("Email","电邮","E-mel"), board: t3("Notice board","告示板","Papan kenyataan")
+};
+var FR = {
+  unknown: t3("Unknown number","陌生号码","Nombor tidak dikenali"),
+  sunHR: t3("Sunrise Mart HR","Sunrise Mart 人事部","HR Sunrise Mart"),
+  hr: t3("HR Dept","人事部","Jabatan HR"),
+  hawker: t3("Block 123 Hawker Centre office","123 座小贩中心办事处","Pejabat Pusat Penjaja Blok 123"),
+  careers: t3("Careers Team (free email address)","招聘组（免费电邮地址）","Pasukan Kerjaya (alamat e-mel percuma)"),
+  sunCareers: t3("Sunrise Mart Careers","Sunrise Mart 招聘组","Kerjaya Sunrise Mart")
+};
+
+var R1 = [
+ {ch:CH.wa, from:FR.unknown,
+  text:t3("Hello! Earn $300 to $800 a day just by liking videos and tapping ‘buy’ on shopping apps. Work from home. No experience needed. Reply YES to start today!",
+          "您好！只要在家给视频点赞、在购物应用上点“购买”，每天就能赚 $300 到 $800。无需经验。回复“YES”今天就开始！",
+          "Helo! Dapatkan $300 hingga $800 sehari hanya dengan menyukai video dan menekan ‘beli’ pada aplikasi membeli-belah. Kerja dari rumah. Tiada pengalaman diperlukan. Balas YA untuk mula hari ini!"),
+  answer:"scam",
+  why:t3("Real jobs do not pay hundreds of dollars for liking videos. This is called a task scam. It often pays you a little at first, then asks you to ‘top up’ with your own money.",
+         "真正的工作不会因为点赞视频就付几百元。这叫“任务诈骗”。它通常先给您一点小钱，然后叫您自己“充值”。",
+         "Kerja sebenar tidak membayar beratus-ratus dolar hanya kerana menyukai video. Ini dipanggil penipuan tugasan. Ia biasanya membayar sedikit pada mulanya, kemudian meminta anda ‘tambah nilai’ dengan wang sendiri."),
+  points:t3(["Pay is far too high for such easy work","It came from a stranger you never contacted","It rushes you to reply YES straight away"],
+            ["这么轻松的工作，薪水却高得离谱","信息来自您从没联系过的陌生人","催您马上回复“YES”"],
+            ["Gaji terlalu tinggi untuk kerja semudah itu","Ia datang daripada orang asing yang tidak pernah anda hubungi","Ia mendesak anda membalas YA dengan segera"]),
+  lesson:t3("If the pay is far too good for the work, it is a scam.","如果薪水高得和工作不相称，那就是骗局。","Jika gaji terlalu bagus untuk kerja itu, ia adalah penipuan.")},
+ {ch:CH.email, from:FR.sunHR,
+  text:t3("Dear Mdm Tan, thank you for applying for the part-time cashier job at Sunrise Mart, Jurong branch. Your interview is on Tuesday at 10am at our store. Please bring your NRIC. There is no fee. To confirm, call the HR number on our official website.",
+          "陈女士您好，感谢您申请 Sunrise Mart 裕廊分店的兼职收银员一职。面试安排在星期二上午 10 点，地点是我们的店里。请带上身份证（NRIC）。我们不收取任何费用。如需确认，请拨打官方网站上的人事部电话。",
+          "Puan Tan yang dihormati, terima kasih kerana memohon jawatan juruwang sambilan di Sunrise Mart, cawangan Jurong. Temu duga anda pada hari Selasa pukul 10 pagi di kedai kami. Sila bawa NRIC anda. Tiada yuran dikenakan. Untuk mengesahkan, hubungi nombor HR di laman web rasmi kami."),
+  answer:"real",
+  why:t3("You applied first. The place, day and time are clear, nobody asks for money, and you are told to confirm using the official website. Even so, always look up that number yourself.",
+         "是您先去申请的。地点、日期和时间都很清楚，没人要您付钱，还叫您通过官方网站确认。即便如此，也请自己去查那个电话号码。",
+         "Anda yang memohon dahulu. Tempat, hari dan masa jelas, tiada sesiapa meminta wang, dan anda diminta mengesahkan melalui laman web rasmi. Walaupun begitu, sentiasa cari sendiri nombor itu."),
+  points:t3(["You applied for this job first","Clear place, day and time for a face-to-face interview","No fee, and it points you to the official website"],
+            ["是您自己先申请的","面试的地点、日期和时间都很清楚，当面进行","不收费，还叫您去官方网站核实"],
+            ["Anda yang memohon kerja ini dahulu","Tempat, hari dan masa yang jelas untuk temu duga bersemuka","Tiada yuran, dan ia menunjuk anda ke laman web rasmi"]),
+  lesson:t3("A real employer lets you check them on their official website.","真正的雇主会让您通过官方网站核实。","Majikan sebenar membenarkan anda menyemak mereka di laman web rasmi.")},
+ {ch:CH.sms, from:FR.hr,
+  text:t3("CONGRATULATIONS! You are hired as an Online Assistant. To receive your contract and work laptop, please pay $180 for registration and training. Refunded after your first week.",
+          "恭喜！您已被录用为网络助理。要领取合同和工作电脑，请先支付 $180 的注册和培训费。第一周后退还。",
+          "TAHNIAH! Anda diambil bekerja sebagai Pembantu Dalam Talian. Untuk menerima kontrak dan komputer riba kerja, sila bayar $180 untuk pendaftaran dan latihan. Dikembalikan selepas minggu pertama anda."),
+  answer:"scam",
+  why:t3("A real employer pays you. You never pay them to start work. ‘Refundable’ is a common promise that makes a fee sound safe.",
+         "真正的雇主会付钱给您，您永远不必先付钱才能上班。“可退还”是骗子常用的话，让收费听起来很安全。",
+         "Majikan sebenar membayar anda. Anda tidak pernah membayar mereka untuk mula bekerja. ‘Boleh dikembalikan’ ialah janji biasa untuk menjadikan yuran kelihatan selamat."),
+  points:t3(["It asks you to pay before you start","You were ‘hired’ without any interview","A refund is promised to make you trust it"],
+            ["要您在开工前先付钱","没有任何面试就说“录用”","承诺退款，让您放心"],
+            ["Ia meminta anda membayar sebelum bermula","Anda ‘diambil bekerja’ tanpa sebarang temu duga","Pemulangan wang dijanjikan untuk membuat anda percaya"]),
+  lesson:t3("A real job never charges you to start.","真正的工作绝不会要您付钱才能开始。","Kerja sebenar tidak pernah mengenakan bayaran untuk anda bermula.")},
+ {ch:CH.board, from:FR.hawker,
+  text:t3("Part-time cleaner wanted. $10 per hour, 4 hours a day, Monday to Friday. Walk in with your NRIC to the management office, 9am to 5pm. Ask for Mr Lim.",
+          "清洁工（兼职）招聘。时薪 $10，每天 4 小时，星期一至五。请带身份证到管理处面谈，上午 9 点至下午 5 点。找林先生。",
+          "Dicari pencuci sambilan. $10 sejam, 4 jam sehari, Isnin hingga Jumaat. Datang bersama NRIC anda ke pejabat pengurusan, 9 pagi hingga 5 petang. Cari Encik Lim."),
+  answer:"real",
+  why:t3("It is posted in a real place you can walk to, the pay is ordinary, and you meet a real person face to face. Nothing is asked in advance. You can still pop by the office first, just to be sure.",
+         "告示贴在您可以亲自走去的真实地点，薪水合理，您会当面见到真人，事先不用付任何东西。您还是可以先去办事处看看，更放心。",
+         "Ia dipaparkan di tempat sebenar yang boleh anda kunjungi, gajinya munasabah, dan anda bertemu orang sebenar secara bersemuka. Tiada apa-apa diminta lebih awal. Anda masih boleh singgah di pejabat dahulu, untuk lebih pasti."),
+  points:t3(["A real place that you can visit in person","Ordinary pay for ordinary work","No payment, and you meet someone face to face"],
+            ["您可以亲自去的真实地点","普通的工作，合理的薪水","不用付钱，而且当面见人"],
+            ["Tempat sebenar yang boleh anda kunjungi sendiri","Gaji biasa untuk kerja biasa","Tiada bayaran, dan anda bertemu seseorang secara bersemuka"]),
+  lesson:t3("A job you can check in person is much safer.","可以亲自去核实的工作，安全得多。","Kerja yang boleh disemak sendiri secara bersemuka jauh lebih selamat.")},
+ {ch:CH.email, from:FR.careers,
+  text:t3("Welcome aboard! To set up your salary account, please send us photos of the front and back of your NRIC, and the 6-digit OTP that your bank will SMS to you today.",
+          "欢迎加入！为了开设您的薪水户口，请把身份证正反两面的照片，以及银行今天发给您的 6 位数验证码（OTP）发给我们。",
+          "Selamat datang! Untuk menyediakan akaun gaji anda, sila hantar foto depan dan belakang NRIC anda, dan 6 digit OTP yang akan bank SMS kepada anda hari ini."),
+  answer:"scam",
+  why:t3("Never share an OTP with anyone. It is the key to your bank account, and scammers use it to take your money.",
+         "绝不能把验证码（OTP）告诉任何人。它就像您银行户口的钥匙，骗子拿到后就会把您的钱转走。",
+         "Jangan sekali-kali kongsi OTP dengan sesiapa. Ia ialah kunci akaun bank anda, dan penipu menggunakannya untuk mengambil wang anda."),
+  points:t3(["It asks for your OTP, which you must never share","It wants your NRIC photos before any real hiring","It pushes you to act today"],
+            ["要您的验证码（OTP），绝对不能给","还没真正录用就要身份证照片","催您今天就做"],
+            ["Ia meminta OTP anda, yang tidak boleh dikongsi","Ia mahu foto NRIC anda sebelum pengambilan sebenar","Ia mendesak anda bertindak hari ini"]),
+  lesson:t3("Never share your OTP or NRIC photos with a job ‘recruiter’.","绝不要把验证码或身份证照片交给所谓的“招聘人员”。","Jangan kongsi OTP atau foto NRIC dengan ‘perekrut’ pekerjaan.")}
+];
+
+function ln(t_, f, why){ return {t:t_, f:f, why:why}; }
+var R2 = [
+ {ch:CH.wa, from:FR.unknown, lines:[
+  ln(t3("Hello! I got your number from a job database.","您好！我是从求职资料库找到您的号码的。","Helo! Saya dapat nombor anda daripada pangkalan data kerja."), true,
+     t3("You never applied. Scammers collect numbers from leaked lists and message thousands of people.","您从没申请过。骗子从外泄的名单收集号码，一次发给成千上万的人。","Anda tidak pernah memohon. Penipu mengumpul nombor daripada senarai yang bocor dan menghantar mesej kepada beribu-ribu orang.")),
+  ln(t3("We have a work-from-home job for you.","我们有一份在家工作的职位给您。","Kami ada kerja dari rumah untuk anda."), false,
+     t3("Working from home is normal for many real jobs.","许多真正的工作都可以在家做，这很正常。","Bekerja dari rumah adalah perkara biasa bagi banyak kerja sebenar.")),
+  ln(t3("Pay: $400 to $900 every day, no experience needed!","薪水：每天 $400 到 $900，无需经验！","Gaji: $400 hingga $900 setiap hari, tiada pengalaman diperlukan!"), true,
+     t3("The pay is far too high for easy work.","这么轻松的工作，薪水高得离谱。","Gaji terlalu tinggi untuk kerja yang mudah.")),
+  ln(t3("Please pay $98 to activate your work account.","请支付 $98 来激活您的工作账户。","Sila bayar $98 untuk mengaktifkan akaun kerja anda."), true,
+     t3("A real job never asks you to pay in order to start.","真正的工作不会要您付钱才能开始。","Kerja sebenar tidak pernah meminta anda membayar untuk bermula.")),
+  ln(t3("Reply within 1 hour or the slot goes to someone else.","请在 1 小时内回复，否则名额会给别人。","Balas dalam masa 1 jam atau tempat ini akan diberi kepada orang lain."), true,
+     t3("Pressure to hurry is a favourite scammer trick. It stops you from thinking and checking.","催您赶快是骗子最爱用的手段，让您来不及思考和核实。","Desakan untuk cepat ialah helah kegemaran penipu. Ia menghalang anda berfikir dan menyemak.")),
+  ln(t3("Training is done through a short video call.","培训通过一次简短的视频通话进行。","Latihan dijalankan melalui panggilan video yang singkat."), false,
+     t3("Online training is common in real jobs.","许多真正的工作也采用线上培训。","Latihan dalam talian adalah biasa dalam kerja sebenar."))
+ ]},
+ {ch:CH.email, from:FR.sunCareers, lines:[
+  ln(t3("From: sunrise.mart.hr88@freemail.com","发件人：sunrise.mart.hr88@freemail.com","Daripada: sunrise.mart.hr88@freemail.com"), true,
+     t3("A real company uses its own email address, not a free one with numbers in it.","真正的公司会用自己的电邮地址，而不是带数字的免费电邮。","Syarikat sebenar menggunakan alamat e-mel sendiri, bukan e-mel percuma yang ada nombor.")),
+  ln(t3("You are selected! No interview needed. Start on Monday.","您被选中了！无需面试，星期一就可以开始上班。","Anda terpilih! Tiada temu duga diperlukan. Mula pada hari Isnin."), true,
+     t3("Real employers meet you or speak to you first.","真正的雇主会先和您见面或交谈。","Majikan sebenar akan bertemu atau bercakap dengan anda dahulu.")),
+  ln(t3("The job is full-time, 9am to 6pm, Monday to Friday.","这是全职工作，星期一至五，上午 9 点到下午 6 点。","Kerja ini sepenuh masa, 9 pagi hingga 6 petang, Isnin hingga Jumaat."), false,
+     t3("These are normal working hours.","这是正常的工作时间。","Ini ialah waktu bekerja yang biasa.")),
+  ln(t3("Please send photos of your NRIC and your bank details today.","请今天就把您的身份证照片和银行资料发给我们。","Sila hantar foto NRIC dan butiran bank anda hari ini."), true,
+     t3("Never hand over ID or bank details before a proper interview and contract.","在没有正式面试和合同之前，绝不要交出身份证或银行资料。","Jangan serahkan ID atau butiran bank sebelum temu duga dan kontrak yang betul.")),
+  ln(t3("Your first task: receive money in your bank account and pass it on to our client.","您的第一项任务：让款项转入您的银行户口，再转给我们的客户。","Tugas pertama anda: terima wang dalam akaun bank anda dan pindahkan kepada pelanggan kami."), true,
+     t3("This is a money mule scheme. You could be investigated by the police.","这是“钱骡”骗局。您可能会被警方调查。","Ini ialah skim keldai wang (money mule). Anda boleh disiasat oleh polis.")),
+  ln(t3("Salary is paid on the 28th of every month.","薪水每月 28 日发放。","Gaji dibayar pada 28 haribulan setiap bulan."), false,
+     t3("Monthly pay on a set date is normal.","每月固定日期发薪是正常的。","Gaji bulanan pada tarikh tetap adalah perkara biasa."))
+ ]}
+];
+
+var R3 = [
+ {q:t3("A ‘recruiter’ says you have the job. Before you start, you must pay $150 for a training kit. They promise to refund it next month.",
+       "一位“招聘人员”说您被录用了，但开工前必须先付 $150 买培训用品，还保证下个月退款给您。",
+       "Seorang ‘perekrut’ berkata anda mendapat kerja itu. Sebelum bermula, anda mesti membayar $150 untuk kit latihan. Mereka berjanji memulangkannya bulan depan."),
+  opts:[
+   {t:t3("Pay it. They promised a refund.","付钱。他们保证会退款。","Bayar. Mereka berjanji akan memulangkan."),
+    why:t3("A refund promise is how scammers make a fee sound safe. Once you pay, the money is usually gone.","答应退款是骗子让收费听起来安全的手段。一旦付了钱，通常就拿不回来了。","Janji pemulangan ialah cara penipu membuat yuran kelihatan selamat. Sebaik sahaja anda membayar, wang itu biasanya hilang.")},
+   {t:t3("Do not pay. Look up the company yourself and call the number on its official website.","不要付钱。自己查这家公司，打官方网站上的电话。","Jangan bayar. Cari syarikat itu sendiri dan hubungi nombor di laman web rasminya."), best:true,
+    why:t3("A real employer never charges you to start work. Checking with contact details you found yourself is the safest move.","真正的雇主不会要您付钱才能上班。用自己找到的联络方式去核实，最安全。","Majikan sebenar tidak pernah mengenakan bayaran untuk anda bermula. Menyemak dengan butiran hubungan yang anda cari sendiri ialah langkah paling selamat.")},
+   {t:t3("Pay half now and half later.","现在先付一半，以后再付另一半。","Bayar separuh sekarang dan separuh kemudian."),
+    why:t3("Even half is too much. Any fee to start work is a red flag.","就算只付一半也太多。任何开工前的收费都是危险信号。","Walau separuh pun terlalu banyak. Sebarang yuran untuk bermula kerja ialah tanda bahaya.")}],
+  lesson:t3("A real job never charges you to start.","真正的工作绝不会要您付钱才能开始。","Kerja sebenar tidak pernah mengenakan bayaran untuk anda bermula.")},
+ {q:t3("A stranger offers easy money. Just let money come into your bank account, then transfer it to someone else. You keep 10%.",
+       "一个陌生人说有轻松赚钱的机会：只要让款项转入您的银行户口，再转给别人，您就可以留下 10%。",
+       "Seorang asing menawarkan wang mudah. Biarkan wang masuk ke akaun bank anda, kemudian pindahkan kepada orang lain. Anda simpan 10%."),
+  opts:[
+   {t:t3("Do it. It is easy money.","照做，这是轻松赚钱。","Lakukannya. Ini wang mudah."),
+    why:t3("Scammers use other people’s accounts to hide stolen money. You could be held responsible.","骗子用别人的户口来藏匿赃款，您可能要承担责任。","Penipu menggunakan akaun orang lain untuk menyembunyikan wang curi. Anda boleh dipertanggungjawabkan.")},
+   {t:t3("Do it just once to see what happens.","只做一次，看看会怎样。","Lakukan sekali sahaja untuk melihat apa yang berlaku."),
+    why:t3("Once is enough to get into serious trouble, and your account may be frozen.","只做一次就足以惹上大麻烦，您的户口也可能被冻结。","Sekali sahaja sudah cukup untuk menimbulkan masalah serius, dan akaun anda mungkin dibekukan.")},
+   {t:t3("Say no and stop replying.","拒绝，并且不再回复。","Tolak dan berhenti membalas."), best:true,
+    why:t3("This is called being a money mule. Even if you did not know, the police can investigate you. Walk away.","这就是所谓的“钱骡”。即使您事先不知情，警方也可能调查您。请直接走开。","Ini dipanggil keldai wang (money mule). Walaupun anda tidak tahu, polis boleh menyiasat anda. Jauhkan diri.")}],
+  lesson:t3("Never move money for a stranger.","绝不要替陌生人转钱。","Jangan sekali-kali memindahkan wang untuk orang asing.")},
+ {q:t3("You get a message: ‘You are hired! Click this link to log in and fill in your NRIC and bank details.’",
+       "您收到一条信息：“恭喜录用！请点击此链接登录，并填写您的身份证和银行资料。”",
+       "Anda menerima mesej: ‘Anda diambil bekerja! Klik pautan ini untuk log masuk dan isi NRIC serta butiran bank anda.’"),
+  opts:[
+   {t:t3("Do not click. Contact the company using a number from its official website.","不要点击。用官方网站上的电话联络这家公司。","Jangan klik. Hubungi syarikat menggunakan nombor dari laman web rasminya."), best:true,
+    why:t3("Fake links copy real websites to steal your details. Going to the company yourself avoids the trap.","假链接会仿冒真网站来偷您的资料。自己去联络公司，就能避开陷阱。","Pautan palsu meniru laman web sebenar untuk mencuri butiran anda. Menghubungi syarikat sendiri mengelakkan perangkap itu.")},
+   {t:t3("Click the link and fill it in.","点击链接并填写资料。","Klik pautan dan isi maklumat."),
+    why:t3("Fake links copy real websites to steal your NRIC and bank details.","假链接会仿冒真网站，来偷您的身份证和银行资料。","Pautan palsu meniru laman web sebenar untuk mencuri NRIC dan butiran bank anda.")},
+   {t:t3("Forward it to friends so they can apply too.","转发给朋友，让他们也来申请。","Hantar kepada rakan supaya mereka juga boleh memohon."),
+    why:t3("That could spread the scam to people you care about. Delete it and report it instead.","这可能把骗局传给您关心的人。请删除并举报。","Itu boleh menyebarkan penipuan kepada orang yang anda sayangi. Padam dan laporkannya.")}],
+  lesson:t3("Do not click links in job messages.","不要点击求职信息里的链接。","Jangan klik pautan dalam mesej pekerjaan.")},
+ {q:t3("You already sent some money to a ‘job’, and now you feel foolish. What is the best next step?",
+       "您已经汇了一些钱给某份“工作”，现在觉得自己很傻。接下来最好怎么做？",
+       "Anda sudah menghantar sedikit wang kepada sebuah ‘kerja’, dan kini rasa bodoh. Apakah langkah terbaik seterusnya?"),
+  opts:[
+   {t:t3("Keep quiet. It is too embarrassing.","不出声，太丢脸了。","Berdiam diri. Terlalu memalukan."),
+    why:t3("Scammers fool clever people every day. The sooner you tell someone, the better.","骗子每天都在骗聪明人。越早告诉别人越好。","Penipu memperdayakan orang bijak setiap hari. Lebih awal anda beritahu seseorang, lebih baik.")},
+   {t:t3("Call your bank right away, call the ScamShield helpline 1799, and make a police report.","立刻打电话给银行，拨打 ScamShield 热线 1799，并向警方报案。","Hubungi bank anda dengan segera, hubungi talian ScamShield 1799, dan buat laporan polis."), best:true,
+    why:t3("Speed matters. Your bank may be able to act quickly, and the helpline can guide you.","速度很重要。银行也许能及时处理，热线也可以给您指引。","Kelajuan penting. Bank anda mungkin dapat bertindak segera, dan talian bantuan boleh membimbing anda.")},
+   {t:t3("Wait a week to see if they reply.","等一个星期，看看他们会不会回复。","Tunggu seminggu untuk melihat sama ada mereka membalas."),
+    why:t3("Waiting gives scammers time to move the money. Act the same day.","拖延只会让骗子有时间转移钱。请当天就采取行动。","Menunggu memberi penipu masa untuk memindahkan wang. Bertindak pada hari yang sama.")}],
+  lesson:t3("If you were scammed, act quickly and tell someone.","如果被骗了，要尽快行动并告诉别人。","Jika anda ditipu, bertindak segera dan beritahu seseorang.")}
+];
+
+var ROUNDS = [
+ {name:t3("Real or Scam?","真工作还是骗局？","Sebenar atau Penipuan?"), items:R1, max:50,
+  intro:t3("You will read 5 messages. Decide if each one is a real job or a scam. Each correct answer is 10 points.","您将看到 5 条信息。请判断每一条是真工作还是骗局。每答对一题得 10 分。","Anda akan membaca 5 mesej. Tentukan sama ada setiap satu kerja sebenar atau penipuan. Setiap jawapan betul bernilai 10 mata."),
+  remember:t3("A real job never asks you to pay to start, and never needs your OTP.","真正的工作不会要您先付钱，也不会要您的验证码（OTP）。","Kerja sebenar tidak pernah meminta anda membayar untuk bermula, dan tidak pernah memerlukan OTP anda.")},
+ {name:t3("Spot the Red Flags","找出危险信号","Kenal Pasti Tanda Bahaya"), items:R2, max:40,
+  intro:t3("Two messages are coming. Tap every line that worries you, then press Check. Each red flag you find is 5 points. A wrong tap costs 3 points, so tap only the lines that worry you.","接下来有两条信息。请点选让您觉得不对劲的每一行，然后按“检查我的答案”。每找到一个危险信号得 5 分，点错一行扣 3 分，所以只点真正让您担心的行。","Dua mesej akan dipaparkan. Ketik setiap baris yang membimbangkan anda, kemudian tekan Semak. Setiap tanda bahaya yang dijumpai bernilai 5 mata. Ketikan yang salah menolak 3 mata, jadi ketik hanya baris yang membimbangkan anda."),
+  remember:t3("Pressure to hurry, fees, and requests for ID or bank details are warning signs.","催您赶快、要您付费、索取身份证或银行资料，都是警告信号。","Desakan untuk cepat, yuran, serta permintaan untuk ID atau butiran bank ialah tanda amaran.")},
+ {name:t3("What Would You Do?","您会怎么做？","Apa Yang Anda Akan Buat?"), items:R3, max:40,
+  intro:t3("Here are 4 real-life situations. Pick the best thing to do. Each right choice is 10 points.","这里有 4 个生活中的情况。请选出最好的做法。每选对一次得 10 分。","Berikut 4 situasi sebenar. Pilih tindakan terbaik. Setiap pilihan betul bernilai 10 mata."),
+  remember:t3("When unsure, stop, check for yourself, and tell someone you trust.","不确定的时候，先停一停，自己去核实，再告诉信任的人。","Jika tidak pasti, berhenti, semak sendiri, dan beritahu seseorang yang anda percayai.")}
+];
+
+/* mini game pairs: a = sign, b = advice */
+var G1 = [
+ {a:t3("OTP code","验证码（OTP）","Kod OTP"), b:t3("Never share it with anyone","绝不告诉任何人","Jangan kongsi dengan sesiapa")},
+ {a:t3("Fee to start work","入职先交费","Yuran untuk mula kerja"), b:t3("A red flag. Do not pay","危险信号，不要付款","Tanda bahaya. Jangan bayar")},
+ {a:t3("Official website","官方网站","Laman web rasmi"), b:t3("Check the company here","在这里核实公司","Semak syarikat di sini")}
+];
+var G2 = [
+ {a:t3("Asks you to pay a fee","要您先付费","Meminta anda bayar yuran"), b:t3("Red flag. Say no","危险信号，拒绝","Tanda bahaya. Tolak")},
+ {a:t3("Wants your OTP","要您的验证码","Mahu OTP anda"), b:t3("Never share it","绝不能给","Jangan kongsi")},
+ {a:t3("Says: hurry, reply now!","说：快点，马上回复！","Kata: cepat, balas sekarang!"), b:t3("Slow down and check","慢下来，先核实","Perlahan dan semak")},
+ {a:t3("Sends a link to log in","发来登录链接","Hantar pautan untuk log masuk"), b:t3("Do not click it","不要点击","Jangan klik")}
+];
+
+/* ---------- state ---------- */
+var S;
+function fresh(){
+  if(S && S.g && S.g.timer){ clearTimeout(S.g.timer); }
+  S = {screen:"start", round:0, idx:0, score:0, streak:0, bestStreak:0, rs:[0,0,0],
+       answered:false, picks:[], res:null, missed:[], g:null, bonusDone:[false,false]};
+}
+fresh();
+
+var app = document.getElementById("app");
+var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function shuffle(a){ a = a.slice(); for(var i=a.length-1;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+
+/* ---------- header ---------- */
+function updateHeader(){
+  document.getElementById("meterRect").style.transform = "translateY(" + (48 - 48*Math.min(1,S.score/MAXPTS)) + "px)";
+  document.getElementById("scoreChip").textContent = t("pts", S.score);
+  var sc = document.getElementById("streakChip");
+  if(S.streak >= 2){ sc.hidden = false; sc.textContent = t("streak", S.streak); } else { sc.hidden = true; }
+  document.getElementById("brandName").textContent = t("brand");
+  document.getElementById("langGrp").setAttribute("aria-label", t("langAria"));
+  document.getElementById("btnSmaller").setAttribute("aria-label", t("smaller"));
+  document.getElementById("btnLarger").setAttribute("aria-label", t("larger"));
+  var lb = document.querySelectorAll("#langGrp button");
+  for(var i=0;i<lb.length;i++){ lb[i].setAttribute("aria-pressed", String(i === li)); }
+}
+function shieldBig(p, id){
+  return '<svg viewBox="0 0 40 48" aria-hidden="true"><defs><clipPath id="'+id+'"><path d="'+SHIELD+'"/></clipPath></defs>' +
+    '<path class="s-bg" d="'+SHIELD+'"/>' +
+    '<rect class="s-fill big-fill" x="0" y="0" width="40" height="48" clip-path="url(#'+id+')" style="transform:translateY(48px)" data-p="'+p+'"/>' +
+    '<path class="s-ln" d="'+SHIELD+'"/></svg>';
+}
+function animateBig(){
+  var els = document.querySelectorAll(".big-fill");
+  setTimeout(function(){
+    for(var i=0;i<els.length;i++){ els[i].style.transform = "translateY(" + (48 - 48*parseFloat(els[i].getAttribute("data-p"))) + "px)"; }
+  }, 60);
+}
+
+/* ---------- screens ---------- */
+function progress(){
+  var r = ROUNDS[S.round], n = r.items.length, h = '<div class="prog" aria-hidden="true">';
+  for(var i=0;i<n;i++){ h += '<span class="'+(i<S.idx?'done':(i===S.idx?'now':''))+'"></span>'; }
+  return h + '</div><div class="meta"><span>'+esc(t("roundName", S.round+1, L(r.name)))+'</span><span>'+esc(t("qOf", S.idx+1, n))+'</span></div>';
+}
+function whoRow(it){
+  return '<div class="who"><span class="pill">'+esc(L(it.ch))+'</span><span>'+esc(t("from", L(it.from)))+'</span></div>';
+}
+function langRow(){
+  var names = ["English","中文","Bahasa Melayu"], h = '<div class="row" role="group" aria-label="'+esc(t("chooseLang"))+'">';
+  for(var i=0;i<3;i++){ h += '<button type="button" class="btn alt" lang="'+LANGS[i]+'" data-act="lang" data-v="'+i+'" aria-pressed="'+(i===li)+'">'+names[i]+'</button>'; }
+  return h + '</div>';
+}
+
+function viewStart(){
+  return '<section class="card" aria-labelledby="mh"><div class="hero"><div class="art">'+shieldBig(1,"cpHero")+'</div><div style="display:flex;flex-direction:column;gap:.8rem">' +
+    '<h1 id="mh" tabindex="-1">'+esc(t("brand"))+'</h1><p class="lead">'+esc(t("lead"))+'</p></div></div>' +
+    '<h4>'+esc(t("chooseLang"))+'</h4>' + langRow() +
+    '<ul class="points">' +
+    [1,2,3,4].map(function(n){ return '<li><span class="dot"></span><span><b>'+esc(t("s"+n+"b"))+'</b> '+esc(t("s"+n+"t"))+'</span></li>'; }).join("") + '</ul>' +
+    '<button class="btn" type="button" data-act="begin">'+esc(t("startBtn"))+'</button></section>';
+}
+
+function viewIntro(){
+  var r = ROUNDS[S.round];
+  return '<section class="card"><h4>'+esc(t("roundOf", S.round+1))+'</h4><h2 id="mh" tabindex="-1">'+esc(L(r.name))+'</h2><p class="lead">'+esc(L(r.intro))+'</p>' +
+    '<button class="btn" type="button" data-act="go">'+esc(t("startRound", S.round+1))+'</button></section>';
+}
+
+function nextBtn(){
+  var r = ROUNDS[S.round], last = S.idx >= r.items.length-1;
+  return '<button class="btn" type="button" data-act="next">'+esc(t(last?"finishRound":"nextQ"))+'</button>';
+}
+
+function viewJudge(){
+  var it = ROUNDS[0].items[S.idx], h = '<section class="card" aria-labelledby="mh">' + progress();
+  h += '<h2 id="mh" tabindex="-1">'+esc(t("judgeQ"))+'</h2><div class="bubble">'+whoRow(it)+'<p class="msg">'+esc(L(it.text))+'</p></div>';
+  if(!S.answered){
+    h += '<div class="judge"><button class="btn" type="button" data-act="judge" data-v="real">'+esc(t("btnReal"))+'</button>' +
+         '<button class="btn" type="button" data-act="judge" data-v="scam">'+esc(t("btnScam"))+'</button></div>';
+  } else {
+    var ok = S.res.ok, scam = it.answer === "scam";
+    h += '<div class="fb '+(ok?'ok':'no')+'" role="status"><h3 id="fbh" tabindex="-1">'+esc(t(ok?"correct":"nq1"))+' <span class="pts">'+esc(t("plus", ok?10:0))+'</span></h3>' +
+      '<p><b>'+esc(t(scam?"isScam":"isReal"))+'</b> '+esc(t(S.res.pick==="scam"?"saidScam":"saidReal"))+'</p><p>'+esc(L(it.why))+'</p>' +
+      '<h4>'+esc(t(scam?"redFlags":"goodSigns"))+'</h4><ul>'+L(it.points).map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>' + nextBtn();
+  }
+  return h + '</section>';
+}
+
+function viewFlags(){
+  var it = ROUNDS[1].items[S.idx], h = '<section class="card" aria-labelledby="mh">' + progress();
+  h += '<h2 id="mh" tabindex="-1">'+esc(t("flagsH"))+'</h2><div class="bubble">'+whoRow(it)+'</div>';
+  h += '<div class="lines" role="group" aria-label="'+esc(t("linesAria"))+'">';
+  it.lines.forEach(function(l,i){
+    var on = S.picks.indexOf(i) > -1, cls = "line", extra = "";
+    if(S.answered){
+      cls += l.f ? " rflag" : " rsafe";
+      var tag = l.f ? t(on ? "tFlagSpot" : "tFlagMiss") : t(on ? "tSafeWrong" : "tSafeOk");
+      extra = '<span class="tag">'+esc(tag)+'</span><span class="muted">'+esc(L(l.why))+'</span>';
+    }
+    h += '<button type="button" class="'+cls+'" role="checkbox" aria-checked="'+on+'" data-act="toggle" data-i="'+i+'"'+(S.answered?' disabled':'')+'>' +
+      '<span class="box" aria-hidden="true">'+(on?'✔':'')+'</span><span class="txt"><span>'+esc(L(l.t))+'</span>'+extra+'</span></button>';
+  });
+  h += '</div>';
+  if(!S.answered){
+    h += '<p class="muted">'+esc(t("flagsHint"))+'</p><button class="btn" type="button" data-act="check">'+esc(t("checkBtn"))+'</button>';
+  } else {
+    var r = S.res, ok = r.pts >= 15;
+    h += '<div class="fb '+(ok?'ok':'no')+'" role="status"><h3 id="fbh" tabindex="-1">'+esc(t(ok?"wellSpotted":"goodStart"))+' <span class="pts">'+esc(t("plus", r.pts))+'</span></h3>' +
+      '<p>'+esc(t("found", r.found, r.total) + (r.wrong ? t("wrongMarked", r.wrong) : ""))+'</p></div>' + nextBtn();
+  }
+  return h + '</section>';
+}
+
+function viewChoose(){
+  var it = ROUNDS[2].items[S.idx], LT = ["A","B","C"], h = '<section class="card" aria-labelledby="mh">' + progress();
+  h += '<h2 id="mh" tabindex="-1">'+esc(t("chooseH"))+'</h2><p class="lead">'+esc(L(it.q))+'</p><div class="opts">';
+  it.opts.forEach(function(o,i){
+    var cls = "opt", tag = "";
+    if(S.answered){
+      if(o.best){ cls += " best"; tag = '<span class="tag">'+esc(t("bestAns") + (S.res.pick===i ? " " + t("yourChoiceParen") : ""))+'</span>'; }
+      else if(S.res.pick === i){ cls += " wrong"; tag = '<span class="tag">'+esc(t("yourChoice"))+'</span>'; }
+    }
+    h += '<button type="button" class="'+cls+'" data-act="choose" data-i="'+i+'"'+(S.answered?' disabled':'')+'><span class="ltr" aria-hidden="true">'+LT[i]+'</span><span class="txt">'+tag+'<span>'+esc(L(o.t))+'</span></span></button>';
+  });
+  h += '</div>';
+  if(S.answered){
+    var ok = S.res.ok, best = it.opts.filter(function(o){return o.best;})[0], mine = it.opts[S.res.pick];
+    h += '<div class="fb '+(ok?'ok':'no')+'" role="status"><h3 id="fbh" tabindex="-1">'+esc(t(ok?"correct":"nq2"))+' <span class="pts">'+esc(t("plus", ok?10:0))+'</span></h3>' +
+      (ok?'':'<p><b>'+esc(t("whyRisky"))+'</b> '+esc(L(mine.why))+'</p>') + '<p><b>'+esc(t("whyBest"))+'</b> '+esc(L(best.why))+'</p></div>' + nextBtn();
+  }
+  return h + '</section>';
+}
+
+function stars(n){
+  var h = '<div class="stars" role="img" aria-label="'+esc(t("starsAria", n))+'">';
+  for(var i=0;i<3;i++){ h += '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="'+(i<n?'star-on':'star-off')+'" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>'; }
+  return h + '</div>';
+}
+function viewRoundEnd(){
+  var r = ROUNDS[S.round], pts = S.rs[S.round], pct = pts / r.max, n = pct >= .8 ? 3 : (pct >= .5 ? 2 : 1);
+  var last = S.round === 2;
+  return '<section class="card"><h4>'+esc(t("roundDone", S.round+1))+'</h4><h2 id="mh" tabindex="-1">'+esc(L(r.name))+'</h2>' + stars(n) +
+    '<p class="big">'+pts+' <span class="muted" style="font-size:1.1rem;font-family:var(--body)">'+esc(t("ofPts", r.max))+'</span></p>' +
+    '<div class="help"><h4>'+esc(t("remember"))+'</h4><p class="lead">'+esc(L(r.remember))+'</p></div>' +
+    '<button class="btn" type="button" data-act="after">'+esc(t(last?"seeResults":"playGame"))+'</button></section>';
+}
+
+/* ----- mini games ----- */
+function initGame(n){
+  var g = {n:n, tries:0, msg:"", done:false, stars:3, timer:null};
+  if(n === 0){
+    var idx = [0,1,2], ord = shuffle(idx), tries = 0;
+    while(ord.join() === idx.join() && tries++ < 10){ ord = shuffle(idx); }
+    g.selL = null; g.order = ord; g.matched = [];
+  } else {
+    var cards = [];
+    G2.forEach(function(p,i){ cards.push({p:i,s:0},{p:i,s:1}); });
+    g.cards = shuffle(cards); g.open = []; g.matchedP = []; g.pending = false;
+  }
+  return g;
+}
+function gameCount(){ return S.g.n === 0 ? S.g.matched.length : S.g.matchedP.length; }
+function gameTotal(){ return S.g.n === 0 ? G1.length : G2.length; }
+function finishGame(){
+  var g = S.g; g.done = true;
+  var tr = g.tries;
+  g.stars = g.n === 0 ? (tr <= 4 ? 3 : (tr <= 6 ? 2 : 1)) : (tr <= 7 ? 3 : (tr <= 11 ? 2 : 1));
+  if(!S.bonusDone[g.n]){ S.bonusDone[g.n] = true; S.score += 10; }
+}
+function gameMatch(){
+  var g = S.g, h = "";
+  h += '<div class="mcols"><div class="mcol"><h4>'+esc(t("colA"))+'</h4>';
+  G1.forEach(function(p,i){
+    var m = g.matched.indexOf(i) > -1, cls = "mt" + (m ? " done" : (g.selL === i ? " sel" : ""));
+    h += '<button type="button" class="'+cls+'" data-act="mleft" data-i="'+i+'"'+(m||g.done?' disabled':'')+' aria-pressed="'+(g.selL===i)+'"><span>'+esc(L(p.a))+'</span>'+(m?'<span class="ok">✔</span>':'')+'</button>';
+  });
+  h += '</div><div class="mcol"><h4>'+esc(t("colB"))+'</h4>';
+  g.order.forEach(function(k){
+    var m = g.matched.indexOf(k) > -1, cls = "mt" + (m ? " done" : "");
+    h += '<button type="button" class="'+cls+'" data-act="mright" data-i="'+k+'"'+(m||g.done?' disabled':'')+'><span>'+esc(L(G1[k].b))+'</span>'+(m?'<span class="ok">✔</span>':'')+'</button>';
+  });
+  return h + '</div></div>';
+}
+function gameFlip(){
+  var g = S.g, h = '<div class="cards">';
+  g.cards.forEach(function(c,i){
+    var matched = g.matchedP.indexOf(c.p) > -1, up = g.open.indexOf(i) > -1;
+    var pair = G2[c.p], txt = L(c.s === 0 ? pair.a : pair.b);
+    if(matched){
+      h += '<button type="button" class="fc done" disabled><span>'+esc(txt)+'<span class="ok">✔</span></span></button>';
+    } else if(up){
+      h += '<button type="button" class="fc up'+(c.s?' b':'')+'" data-act="flip" data-i="'+i+'"><span>'+esc(txt)+'</span></button>';
+    } else {
+      h += '<button type="button" class="fc" data-act="flip" data-i="'+i+'" aria-label="'+esc(t("cardDown", i+1))+'"><span class="q" aria-hidden="true">?</span></button>';
+    }
+  });
+  return h + '</div>';
+}
+function viewGame(){
+  var g = S.g, n = g.n;
+  var h = '<section class="card" aria-labelledby="mh"><h4>'+esc(t("gameTag", n+1) + " · " + t(n ? "lvl2" : "lvl1"))+'</h4>' +
+    '<h2 id="mh" tabindex="-1">'+esc(t(n ? "g2t" : "g1t"))+'</h2><p class="lead">'+esc(t(n ? "g2i" : "g1i"))+'</p>' +
+    '<div class="status"><span class="chip">'+esc(t("tries", g.tries))+'</span><span class="chip">'+esc(t("matchedOf", gameCount(), gameTotal()))+'</span></div>' +
+    '<p class="gmsg" role="status">'+esc(g.msg ? t(g.msg) : "")+'</p>';
+  h += n ? gameFlip() : gameMatch();
+  if(g.done){
+    h += '<div class="fb ok" role="status"><h3 id="fbh" tabindex="-1">'+esc(t("gameDone"))+'</h3><p>'+esc(t("doneTries", g.tries))+'</p>'+stars(g.stars)+'</div>' +
+      '<button class="btn" type="button" data-act="afterGame">'+esc(t("goRound", n+2))+'</button>';
+  } else {
+    h += '<button class="btn alt" type="button" data-act="afterGame">'+esc(t("skipGame"))+'</button>';
+  }
+  return h + '</section>';
+}
+
+function viewResults(){
+  var p = S.score / MAXPTS, title, note;
+  if(p >= .9){ title = "tChamp"; note = "nChamp"; }
+  else if(p >= .7){ title = "tGuard"; note = "nGuard"; }
+  else if(p >= .5){ title = "tAppr"; note = "nAppr"; }
+  else { title = "tFresh"; note = "nFresh"; }
+  var B = [
+    {k:"b1", on:S.rs[0] >= 40}, {k:"b2", on:S.rs[1] >= 30}, {k:"b3", on:S.rs[2] >= 30},
+    {k:"b4", on:S.bonusDone[0] && S.bonusDone[1]}, {k:"b5", on:S.score === MAXPTS}
+  ];
+  var h = '<section class="card"><div class="rank"><div>'+shieldBig(p,"cpRes")+'</div><div style="display:flex;flex-direction:column;gap:.4rem">' +
+    '<h4>'+esc(t("yourTitle"))+'</h4><h2 id="mh" tabindex="-1">'+esc(t(title))+'</h2><p class="big">'+S.score+' <span class="muted" style="font-size:1.1rem;font-family:var(--body)">'+esc(t("ofPts", MAXPTS))+'</span></p><p>'+esc(t(note))+'</p></div></div></section>';
+  h += '<section class="card"><h3>'+esc(t("yourBadges"))+'</h3><div class="badges">' + B.map(function(b){
+    return '<div class="badge '+(b.on?'on':'off')+'"><b>'+esc(t(b.k))+'</b><span class="muted">'+esc(t(b.k+"d"))+'</span><span class="st">'+esc(t(b.on?"earned":"notYet"))+'</span></div>';
+  }).join("") + '</div>' + (S.bestStreak>=2 ? '<p class="muted">'+esc(t("longest", S.bestStreak))+'</p>' : '') + '</section>';
+  h += '<section class="card"><h3>'+esc(t("rulesH"))+'</h3><div class="rules">' +
+    '<div class="rule"><b>'+esc(t("rStop"))+'</b><span>'+esc(t("rStopT"))+'</span></div>' +
+    '<div class="rule"><b>'+esc(t("rCheck"))+'</b><span>'+esc(t("rCheckT"))+'</span></div>' +
+    '<div class="rule"><b>'+esc(t("rTell"))+'</b><span>'+esc(t("rTellT"))+'</span></div></div></section>';
+  var seen = {}, ms = S.missed.filter(function(m){ if(seen[m.o[0]]) return false; seen[m.o[0]] = 1; return true; });
+  if(ms.length){
+    h += '<section class="card"><h3>'+esc(t("revisit"))+'</h3><ul>' + ms.map(function(m){return '<li>'+esc((m.flag ? t("flagPrefix") : "") + L(m.o))+'</li>';}).join("") + '</ul></section>';
+  }
+  h += '<section class="help"><h3>'+esc(t("helpH"))+'</h3><p>'+esc(t("helpP1"))+'</p><p class="num">1799</p>' +
+    '<p>'+esc(t("helpP2"))+'</p>' +
+    '<p><a href="https://scamshield.gov.sg/scamshield-helpline" target="_blank" rel="noopener">'+esc(t("helpLink"))+'</a></p></section>';
+  h += '<section class="card"><h3>'+esc(t("missionH"))+'</h3><p class="lead">'+esc(t("missionA"))+' <b>'+esc(t("missionB"))+'</b></p>' +
+    '<div class="row"><button class="btn" type="button" data-act="again">'+esc(t("again"))+'</button></div></section>';
+  return h;
+}
+
+/* ---------- render ---------- */
+function render(){
+  var sc = S.screen, h;
+  if(sc === "start") h = viewStart();
+  else if(sc === "intro") h = viewIntro();
+  else if(sc === "q") h = S.round === 0 ? viewJudge() : (S.round === 1 ? viewFlags() : viewChoose());
+  else if(sc === "end") h = viewRoundEnd();
+  else if(sc === "game") h = viewGame();
+  else h = viewResults();
+  app.innerHTML = h;
+  updateHeader();
+  animateBig();
+}
+function focusTop(){
+  var el = document.getElementById("mh"); if(el){ el.focus({preventScroll:true}); }
+  window.scrollTo(0, 0);
+}
+function focusFeedback(){
+  var el = document.getElementById("fbh");
+  if(el){ el.focus({preventScroll:true}); el.scrollIntoView({behavior: reduce ? "auto" : "smooth", block:"center"}); }
+}
+function refocus(act, i){
+  var y = window.scrollY, el = app.querySelector('[data-act="'+act+'"][data-i="'+i+'"]');
+  if(el && !el.disabled){ el.focus({preventScroll:true}); }
+  window.scrollTo(0, y);
+}
+function addScore(pts, good, missed){
+  S.score += pts; S.rs[S.round] += pts;
+  if(good){ S.streak++; if(S.streak > S.bestStreak) S.bestStreak = S.streak; } else { S.streak = 0; if(missed) S.missed.push(missed); }
+}
+
+/* ---------- language + text size ---------- */
+function setLang(i){
+  li = Math.max(0, Math.min(2, i));
+  document.documentElement.lang = LANGS[li];
+  try{ localStorage.setItem("scamSpottersLang", String(li)); }catch(e){}
+}
+try{
+  var sl = localStorage.getItem("scamSpottersLang");
+  if(sl !== null){ li = parseInt(sl,10) || 0; }
+  else if(navigator.language){ var nl = navigator.language.toLowerCase(); li = nl.indexOf("zh") === 0 ? 1 : (nl.indexOf("ms") === 0 ? 2 : 0); }
+}catch(e){}
+document.documentElement.lang = LANGS[li];
+
+var scales = [0.9, 1, 1.15, 1.3], si = 1;
+function setScale(i){
+  si = Math.max(0, Math.min(scales.length-1, i));
+  document.documentElement.style.setProperty("--scale", scales[si]);
+  try{ localStorage.setItem("scamSpottersSize", String(si)); }catch(e){}
+}
+try{ var saved = localStorage.getItem("scamSpottersSize"); if(saved !== null) setScale(parseInt(saved,10) || 1); }catch(e){}
+
+/* ---------- actions ---------- */
+document.addEventListener("click", function(e){
+  var b = e.target.closest("[data-act]"); if(!b) return;
+  var a = b.getAttribute("data-act");
+  if(a === "smaller"){ setScale(si-1); return; }
+  if(a === "larger"){ setScale(si+1); return; }
+  if(a === "lang"){
+    setLang(parseInt(b.getAttribute("data-v"),10)); render();
+    var again0 = document.querySelector('[data-act="lang"][data-v="'+li+'"]'); if(again0){ again0.focus({preventScroll:true}); }
+    return;
+  }
+  var r = ROUNDS[S.round], g = S.g;
+
+  if(a === "begin"){ S.screen = "intro"; render(); focusTop(); }
+  else if(a === "go"){ S.screen = "q"; S.idx = 0; S.answered = false; S.picks = []; S.res = null; render(); focusTop(); }
+  else if(a === "judge"){
+    if(S.answered) return;
+    var it = r.items[S.idx], v = b.getAttribute("data-v"), ok = v === it.answer;
+    S.res = {ok:ok, pick:v}; S.answered = true;
+    addScore(ok ? 10 : 0, ok, {o:it.lesson}); render(); focusFeedback();
+  }
+  else if(a === "toggle"){
+    if(S.answered) return;
+    var i = parseInt(b.getAttribute("data-i"),10), k = S.picks.indexOf(i);
+    if(k > -1) S.picks.splice(k,1); else S.picks.push(i);
+    var y = window.scrollY; render(); window.scrollTo(0, y);
+    var again = app.querySelector('[data-act="toggle"][data-i="'+i+'"]'); if(again) again.focus({preventScroll:true});
+  }
+  else if(a === "check"){
+    if(S.answered) return;
+    var m = r.items[S.idx], found = 0, wrong = 0, total = 0, firstMiss = null;
+    m.lines.forEach(function(l,i){
+      var on = S.picks.indexOf(i) > -1;
+      if(l.f){ total++; if(on) found++; else if(!firstMiss) firstMiss = l.why; }
+      else if(on) wrong++;
+    });
+    var pts = Math.max(0, found*5 - wrong*3);
+    S.res = {pts:pts, found:found, wrong:wrong, total:total}; S.answered = true;
+    addScore(pts, pts >= 15, firstMiss ? {o:firstMiss, flag:true} : null);
+    render(); focusFeedback();
+  }
+  else if(a === "choose"){
+    if(S.answered) return;
+    var q = r.items[S.idx], c = parseInt(b.getAttribute("data-i"),10), okc = !!q.opts[c].best;
+    S.res = {ok:okc, pick:c}; S.answered = true;
+    addScore(okc ? 10 : 0, okc, {o:q.lesson}); render(); focusFeedback();
+  }
+  else if(a === "next"){
+    if(S.idx >= r.items.length - 1){ S.screen = "end"; }
+    else { S.idx++; S.answered = false; S.picks = []; S.res = null; }
+    render(); focusTop();
+  }
+  else if(a === "after"){
+    if(S.round >= 2){ S.screen = "results"; }
+    else { S.screen = "game"; S.g = initGame(S.round); }
+    render(); focusTop();
+  }
+  /* mini game 1: match it */
+  else if(a === "mleft"){
+    if(!g || g.done) return;
+    var li0 = parseInt(b.getAttribute("data-i"),10);
+    if(g.matched.indexOf(li0) > -1) return;
+    g.selL = li0; g.msg = "";
+    render(); refocus("mleft", li0);
+  }
+  else if(a === "mright"){
+    if(!g || g.done) return;
+    var kk = parseInt(b.getAttribute("data-i"),10);
+    if(g.selL === null){ g.msg = "pickLeft"; render(); refocus("mright", kk); return; }
+    g.tries++;
+    if(kk === g.selL){ g.matched.push(kk); g.msg = "goodMatch"; } else { g.msg = "tryAgain"; }
+    g.selL = null;
+    if(g.matched.length === G1.length){ finishGame(); g.msg = ""; render(); focusFeedback(); }
+    else { render(); refocus("mright", kk); }
+  }
+  /* mini game 2: flip and match */
+  else if(a === "flip"){
+    if(!g || g.done) return;
+    var ci = parseInt(b.getAttribute("data-i"),10);
+    if(g.pending){ if(g.timer){ clearTimeout(g.timer); } g.open = []; g.pending = false; }
+    if(g.open.indexOf(ci) > -1 || g.matchedP.indexOf(g.cards[ci].p) > -1) { render(); return; }
+    g.open.push(ci); g.msg = "";
+    if(g.open.length === 2){
+      g.tries++;
+      var c1 = g.cards[g.open[0]], c2 = g.cards[g.open[1]];
+      if(c1.p === c2.p){
+        g.matchedP.push(c1.p); g.open = []; g.msg = "goodMatch";
+        if(g.matchedP.length === G2.length){ finishGame(); g.msg = ""; render(); focusFeedback(); return; }
+      } else {
+        g.msg = "tryAgain"; g.pending = true;
+        g.timer = setTimeout(function(){
+          if(S.screen === "game" && S.g === g && g.pending){ g.open = []; g.pending = false; render(); }
+        }, 1800);
+      }
+    }
+    render(); refocus("flip", ci);
+  }
+  else if(a === "afterGame"){
+    if(g && g.timer){ clearTimeout(g.timer); }
+    S.g = null; S.round++; S.screen = "intro"; S.streak = 0;
+    render(); focusTop();
+  }
+  else if(a === "again"){ fresh(); render(); focusTop(); }
+});
+
+render();
+})();
+</script>
+
+</body></html>
